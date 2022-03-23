@@ -1,0 +1,453 @@
+#!/bin/bash
+
+function fillArr () { 
+#function to fill arrays and variables with the appropriate values
+
+    seed=( $( cut -d$'\n' -f1 $file ) )
+
+    row1=$(head -n 2 $file | tail -1)
+    row1=($(echo "$row1" | tr ' ' '\n'))
+    row1_cp=("${row1[@]}")
+    row1_cp1=("${row1[@]}")
+
+    row2=$(head -n 3 $file | tail -1)
+    row2=($(echo "$row2" | tr ' ' '\n'))
+    row2_cp=("${row2[@]}")
+    row2_cp1=("${row2[@]}")
+
+    row3=$(head -n 4 $file | tail -1)
+    row3=($(echo "$row3" | tr ' ' '\n'))
+    row3_cp=("${row3[@]}")
+    row3_cp1=("${row3[@]}")
+
+    row4=$(head -n 5 $file | tail -1)
+    row4=($(echo "$row4" | tr ' ' '\n'))
+    row4_cp=("${row4[@]}")
+    row4_cp1=("${row4[@]}")
+
+    row5=$(head -n 6 $file | tail -1)
+    row5=($(echo "$row5" | tr ' ' '\n'))
+    row5_cp=("${row5[@]}")
+    row5_cp1=("${row5[@]}")
+
+    col1=(${row1[0]} ${row2[0]} ${row3[0]} ${row4[0]} ${row5[0]})
+    col2=(${row1[1]} ${row2[1]} ${row3[1]} ${row4[1]} ${row5[1]})
+    col3=(${row1[2]} ${row2[2]} ${row3[2]} ${row4[2]} ${row5[2]})
+    col4=(${row1[3]} ${row2[3]} ${row3[3]} ${row4[3]} ${row5[3]})
+    col5=(${row1[4]} ${row2[4]} ${row3[4]} ${row4[4]} ${row5[4]})
+
+    corners=(${row1[0]} ${row1[4]} ${row5[0]} ${row5[4]})
+
+}
+##########################################
+
+function ExitSTAT  {
+
+FILE=$file
+NumOfLines=$( wc -l < $FILE ) #sets NumOfLines to number of lines in file
+line=$(head -n 1 $FILE)
+seedCount=$(echo $line | wc -w)
+seedTrim=${line//[[:space:]]/}
+
+if test -f "$FILE"  # tests if the provided file exists
+then
+  if  test $NumOfLines -eq 6 #tests if NumOfLines = 6
+  then
+        if [ $seedCount -eq 1 ] && [[ $line =~ ^[:0-9:]+$ ]] && [ $seedTrim == $line ]
+        then
+          for i in {2..6} #(( i=2; i<=4; i++ ))
+          do
+                linei=$(head -n "$i" $FILE | tail -n +"$i")
+                Wordcount=$(echo $linei | wc -w)
+                trimmed=${linei//[[:space:]]/}
+                myarray=($linei)
+                if  [ !  $Wordcount -eq 5 ] || [[ !  $trimmed =~ ^[:0-9:]+$ ]]
+                then
+                        echo "card format error" >&2
+                        exit 4
+                fi
+        done
+                for i in {2..6}
+                do
+                        linei=$(head -n "$i" $FILE | tail -n +"$i")
+                        myarray=($linei)
+                        wd1=$(echo ${myarray[0]})
+                        wd2=$(echo ${myarray[1]})
+                        wd3=$(echo ${myarray[2]})
+                        wd4=$(echo ${myarray[3]})
+                        wd5=$(echo ${myarray[4]})
+                        if [ $i -eq  4 ]
+                        then
+                                if [ $wd3 -ne 00 ]
+                                then
+                                        echo "Error: center isn't 00" >&2
+                                        exit 6
+                                fi
+                        elif [ $i -ne 4 ]
+                        then
+                                if [ $wd3 -lt 30 ] || [ $wd3 -gt 45 ]
+                                then
+                                        echo "Error: number out of range" >&2
+ 					exit 5
+                                fi
+                        fi
+
+
+                        if  [ $wd1 -gt  15 ] || [ $wd2 -lt 16 ] || [ $wd2 -gt 30 ] || [ $wd4 -lt 46 ] || [ $wd4 -gt 60 ] || [ $wd5 -lt 61 ] || [ $wd5 -gt 75 ]
+
+                        then
+                                echo "Error: number out of range" >&2
+                                exit 5
+                        fi
+                        Matrix=$(head -6 $FILE | tail -5)
+                        Eevee=($Matrix)
+                 done
+
+                for ((x=0; x<25; x++))
+                do
+                        for ((y=($x+1); y<26; y++))
+                        do
+                                if [[ "${Eevee[x]}" ==  "${Eevee[y]}" ]]
+                                then
+                                        echo "Error: Duplicates found" >&2
+                                        exit 7
+                                else
+                                        continue
+
+                                fi
+                        done
+                done
+
+        
+
+        else
+          echo "seed line format error" >&2
+          exit 3
+        fi
+  else
+    echo "input file must have 6 lines" >&2
+    exit 2
+  fi
+else
+ echo "input file missing or unreadable" >&2
+ exit 1
+
+fi
+
+}
+
+
+
+
+
+
+
+
+##########################################
+
+function printCard {
+    echo "CALL LIST: ${call_list[@]}"
+    echo " L   I   N   U   X"
+
+    for i in ${row1_cp1[@]}
+    do
+        if [ "${i: -1}" == "m" ]
+        then echo -e $i" \c"
+        else echo -e $i"  \c"
+        fi
+    done
+    echo ""
+
+    for i in ${row2_cp1[@]}
+    do
+        if [ "${i: -1}" == "m" ]
+        then echo -e $i" \c"
+        else echo -e $i"  \c"
+        fi
+    done
+    echo ""
+
+    for i in ${row3_cp1[@]}
+    do
+        if [ "${i: -1}" == "m" ]
+        then echo -e $i" \c"
+        else echo -e $i"  \c"
+        fi
+    done
+    echo ""
+
+    for i in ${row4_cp1[@]}
+    do
+        if [ "${i: -1}" == "m" ]
+        then echo -e $i" \c"
+        else echo -e $i"  \c"
+        fi
+    done
+    echo ""
+
+    for i in ${row5_cp1[@]}
+    do
+        if [ "${i: -1}" == "m" ]
+        then echo -e $i" \c"
+        else echo -e $i"  \c"
+        fi
+    done
+    echo ""   
+    
+}
+
+function isInCard {
+    
+    # generate a random number and append to the call list
+
+    duplicate=0
+    while [ 'true' ]
+    do 
+        number=$((1 + $RANDOM % 75))
+        
+        for i in ${generated[@]}
+        do
+            if [ $i -eq $number ]
+            then
+                duplicate=1
+                break
+            fi
+        done
+
+        if [ $duplicate -eq 0 ]
+        then 
+            break
+        fi
+        duplicate=0
+    done
+    generated+=($number)
+
+
+
+    if [[ number -ge 1 && number -le 15 ]]; then
+    call_list+=("L"$number)
+    fi
+    
+    if [[ number -ge 16 && number -le 30 ]]; then
+    call_list+=("I"$number)
+    fi 
+    
+    if [[ number -ge 31 && number -le 45 ]]; then
+    call_list+=("N"$number)
+    fi 
+    
+    if [[ number -ge 46 && number -le 60 ]]; then
+    call_list+=("U"$number)
+    fi 
+    
+    if [[ number -ge 61 && number -le 75 ]]; then
+    call_list+=("X"$number)
+    fi 
+
+    # compare the random number with the numbers in the card
+    # if match, add the number to marked_list
+    for i in ${row1[@]} ${row2[@]} ${row3[@]} ${row4[@]} ${row5[@]}
+    do
+        if [ $number -eq $i ]
+            then marked_list+=($number)
+        fi
+    done
+
+    #remove the matched element in the coppied arrays to check if won yet
+    #update new coppied arrays with 'm'
+    for i in ${row1[@]}
+    do
+        if [ $number -eq $i ]
+            then row1_cp=(${row1_cp[@]/$i})
+                 row1_cp1=(${row1_cp1[@]/$i/"${i}m"})
+        fi
+    done
+
+    for i in ${row2[@]}
+    do
+        if [ $number -eq $i ]
+            then row2_cp=(${row2_cp[@]/$i})
+                 row2_cp1=(${row2_cp1[@]/$i/"${i}m"})
+        fi
+    done
+
+    for i in ${row3[@]}
+    do
+        if [ $number -eq $i ]
+            then row3_cp=(${row3_cp[@]/$i})
+                 row3_cp1=(${row3_cp1[@]/$i/"${i}m"})
+        fi
+    done
+
+    for i in ${row4[@]}
+    do
+        if [ $number -eq $i ]
+            then row4_cp=(${row4_cp[@]/$i})
+                 row4_cp1=(${row4_cp1[@]/$i/"${i}m"})
+        fi
+    done
+
+    for i in ${row5[@]}
+    do
+        if [ $number -eq $i ]
+            then row5_cp=(${row5_cp[@]/$i})
+                 row5_cp1=(${row5_cp1[@]/$i/"${i}m"})
+        fi
+    done
+
+    for i in ${col1[@]}
+    do
+        if [ $number -eq $i ]
+            then col1=(${col1[@]/$i})
+        fi
+    done
+    
+    for i in ${col2[@]}
+    do
+        if [ $number -eq $i ]
+            then col2=(${col2[@]/$i})
+        fi
+    done
+    
+    for i in ${col3[@]}
+    do
+        if [ $number -eq $i ]
+            then col3=(${col3[@]/$i})
+        fi
+    done
+    
+    for i in ${col4[@]}
+    do
+        if [ $number -eq $i ]
+            then col4=(${col4[@]/$i})
+        fi
+    done
+    
+    for i in ${col5[@]}
+    do
+        if [ $number -eq $i ]
+            then col5=(${col5[@]/$i})
+        fi
+    done
+    
+    for i in ${corners[@]}
+    do
+        if [ $number -eq $i ]
+            then corners=(${corners[@]/$i})
+        fi
+    done
+    
+}
+ 
+function won_yet { 
+    #function to check if the user has win by checking if an array is empty
+
+    if [ ${#corners[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#col1[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#col2[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#col3[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#col4[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#col5[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#row1_cp[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#row2_cp[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#row3_cp[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#row4_cp[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    if [ ${#row5_cp[@]} -eq 0 ]; 
+    then
+        true; return
+    fi
+
+    false
+    
+}
+
+#RUN THE PROGRAM
+
+file=$1
+
+
+ExitSTAT
+fillArr
+
+RANDOM=$seed
+generated=()
+
+call_list=()
+marked_list=(00)
+default=00
+row3_cp=(${row3_cp[@]/$default})
+row3_cp1=(${row3_cp1[@]/$default/"${default}m"})
+col3=(${col3[@]/$default})
+
+
+printCard
+read -p 'enter any key to get a call or q to quit: ' input
+
+if [ ${input} == 'Q' -o ${input} == 'q' ]
+    then exit 0
+fi
+
+while [ ${input} != 'Q' -o ${input} != 'q' ]
+do
+    isInCard
+    
+    if won_yet
+    then
+        clear
+        printCard
+        echo "WINNER"
+        exit 0
+    fi 
+    
+    clear
+    printCard
+    read -p 'enter any key to get a call or q to quit: ' input
+
+    if [ ${input} == 'Q' -o ${input} == 'q' ]
+        then exit 0
+    fi  
+done
+
+
+
+
